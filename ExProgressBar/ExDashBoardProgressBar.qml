@@ -33,7 +33,7 @@ Item {
             ctx.beginPath();
             // 绘制完整的背景圆环
             // 参数：圆心x，圆心y，半径，起始角度，结束角度，是否逆时针
-            ctx.arc(root._centerX, root._centerY, root._radius - root.thickness / 2, 0, 2 * Math.PI, false);
+            ctx.arc(root._centerX, root._centerY, root._radius - root.thickness / 2, 135 * Math.PI / 180, 45 * Math.PI / 180, false);
             // 设置线条宽度
             ctx.lineWidth = root.thickness;
             // 设置描边颜色
@@ -52,12 +52,12 @@ Item {
             var ctx = getContext("2d");
             // 重置当前的绘图状态
             ctx.reset();
-            // 设置起始角度为-90度
-            var startAngle = -Math.PI / 2;
+            // 设置起始角度为135度
+            var startAngle = 135 * Math.PI / 180;
             // 计算结束角度（根据当前进度值）
             // 当value为1时,实际显示的进度为1%的圆弧
             // 例如: 1 / 100 = 0.01,表示转了0.01圈
-            var endAngle = startAngle + (Math.PI * 2 * (root.value / 100));
+            var endAngle = startAngle + (270 * Math.PI / 180 * (root.value / 100));
             // 开始一个新的绘图路径
             ctx.beginPath();
             // 绘制进度圆弧
