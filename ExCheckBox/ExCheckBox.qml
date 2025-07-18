@@ -8,7 +8,7 @@ import QtQuick
 import QtQuick.Controls.Basic as T
 
 T.CheckBox {
-    id: exRadioButton
+    id: exCheckBox
 
     //未选中的图标来源
     property url uncheckedSource
@@ -35,11 +35,11 @@ T.CheckBox {
 
     //根据三态检查获取图标源
     function getSource() {
-        if (exRadioButton.checkState === Qt.Unchecked)
+        if (exCheckBox.checkState === Qt.Unchecked)
             return uncheckedSource;
-        if (exRadioButton.checkState === Qt.PartiallyChecked)
+        if (exCheckBox.checkState === Qt.PartiallyChecked)
             return partiallyCheckedSource;
-        if (exRadioButton.checkState === Qt.Checked)
+        if (exCheckBox.checkState === Qt.Checked)
             return checkedSource;
     }
 
@@ -50,11 +50,11 @@ T.CheckBox {
         implicitHeight: parent.height
         Rectangle {
             id: borderRect
-            visible: exRadioButton.hasBorder
+            visible: exCheckBox.hasBorder
             antialiasing: true
-            radius: exRadioButton.radius
-            border.width: exRadioButton.borderWidth
-            border.color: exRadioButton.borderColor
+            radius: exCheckBox.radius
+            border.width: exCheckBox.borderWidth
+            border.color: exCheckBox.borderColor
             anchors.fill: parent
         }
         //图标
@@ -62,22 +62,22 @@ T.CheckBox {
             id: indicatorIcon
             asynchronous: true
             fillMode: Image.PreserveAspectFit
-            source: exRadioButton.getSource()
-            sourceSize: exRadioButton.iconSize
+            source: exCheckBox.getSource()
+            sourceSize: exCheckBox.iconSize
             anchors.left: borderRect.left
-            anchors.leftMargin: exRadioButton.iconToLeftBorderSpacing
+            anchors.leftMargin: exCheckBox.iconToLeftBorderSpacing
             anchors.verticalCenter: borderRect.verticalCenter
         }
         //文本
         T.Label {
             id: indicatorText
-            text: exRadioButton.text
-            color: exRadioButton.textColor
-            font: exRadioButton.font
+            text: exCheckBox.text
+            color: exCheckBox.textColor
+            font: exCheckBox.font
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             anchors.left: indicatorIcon.right
-            anchors.leftMargin: exRadioButton.itSpacing
+            anchors.leftMargin: exCheckBox.itSpacing
             anchors.verticalCenter: indicatorIcon.verticalCenter
         }
     }
