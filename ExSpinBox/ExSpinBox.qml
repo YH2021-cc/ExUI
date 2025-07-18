@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Controls as T
 
-Item {
+Rectangle {
     id: exSpinBox
 
     //重要属性
+    //可接受的最小值
     property int minValue: 0
+    //可接受的最大值
     property int maxValue: 99
     //当前值
     property int value: 0
@@ -13,23 +15,24 @@ Item {
     property int stepSize: 1
     //是否循环(最大值+1=最小值)
     property bool wrap: false
-
-    //背景矩形属性
-    //圆角
-    property real radius: 8
-    //边框
-    property color backgroundRectBorderColor: "#DCDFE6"
-    property int backgroundRectBorderWidth: 0
+    //是否实时更新
+    property bool live: false
 
     //输入框属性
+    //当前输入框显示文本
     readonly property string displayText: input.displayText
+    //是否启用编辑
     property bool editable: false
+    //自定义输入校验器
     property var validator: IntValidator {
         bottom: exSpinBox.minValue
         top: exSpinBox.maxValue
     }
+    //输入框文本字体
     property font textFont
+    //输入框文本颜色
     property color textColor: "black"
+    //输入框背景颜色
     property color inputBackgroundColor: "#DCDFE6"
 
     //up/down矩形的宽高
@@ -37,33 +40,50 @@ Item {
     property real upHeight: exSpinBox.height / 2
 
     //up矩形属性
+    //边框颜色
     property color upRectBorderColor: "#DCDFE6"
+    //边框宽度
     property int upRectBorderWidth: 1
+    //填充颜色
     property color upColor: "#F5F7FA"
-    property size upSize: Qt.size(24, 24)
+    //图标大小
+    property size upSize: Qt.size(16, 16)
+    //图标来源
     property url upSource
+    //是否悬浮在矩形上
     property bool upHovered: upHoverHandle.hovered
+    //是否点击矩形
     property bool upPressed: upTaphandle.pressed
 
     //down矩形属性
+    //边框颜色
     property color downRectBorderColor: "#DCDFE6"
+    //边框宽度
     property int downRectBorderWidth: 1
+    //填充颜色
     property color downColor: "#F5F7FA"
-    property size downSize: Qt.size(24, 24)
+    //图标大小
+    property size downSize: Qt.size(16, 16)
+    //图标来源
     property url downSource
+    //是否悬浮在矩形上
     property bool downHovered: downHoverHandle.hovered
+    //是否点击矩形
     property bool downPressed: downTaphandle.pressed
 
+    //数值修改信号(键盘,鼠标)
     signal valueModified
 
-    function valueFromText(text: string, locale: Locale): int {
+    //将文本转换为数值函数
+    function valueFromText(text, locale): int {
         return Number.fromLocaleString(locale, text);
     }
-
-    function textFromValue(value: int, locale: Locale): string {
+    //将数值转换为文本函数
+    function textFromValue(value, locale): string {
         return Number(value).toLocaleString(locale, 'f', 0);
     }
 
+    //递增stepSize函数
     function decrease() {
         if (exSpinBox.wrap === true) {
             if (exSpinBox.value <= exSpinBox.minValue) {
@@ -84,7 +104,7 @@ Item {
                 exSpinBox.value = exSpinBox.minValue;
         }
     }
-
+    //递减stepSize函数
     function increase() {
         if (exSpinBox.wrap === true) {
             if (exSpinBox.value >= exSpinBox.maxValue) {
@@ -106,6 +126,7 @@ Item {
         }
     }
 
+    //向上箭头按键按下信号
     Keys.onUpPressed: event => {
         if (event.key === Qt.Key_Up) {
             exSpinBox.increase();
@@ -113,7 +134,7 @@ Item {
                 exSpinBox.valueModified();
         }
     }
-
+    //向下箭头按键按下信号
     Keys.onDownPressed: event => {
         if (event.key === Qt.Key_Down) {
             exSpinBox.decrease();
@@ -122,28 +143,24 @@ Item {
         }
     }
 
-    Rectangle {
-        id: bg
-        anchors.fill: parent
-        radius: exSpinBox.radius
-        border.color: exSpinBox.backgroundRectBorderColor
-        border.width: exSpinBox.backgroundRectBorderWidth
-        color: "transparent"
-    }
-
+    //输入框对象
     T.TextField {
         id: input
         readOnly: exSpinBox.editable
         validator: exSpinBox.validator
         implicitWidth: exSpinBox.width - exSpinBox.upWidth
         implicitHeight: exSpinBox.height
-        text: exSpinBox.textFromValue(exSpinBox.value, Qt.locale())
+        text: exSpinBox.textFromValue(exSpinBox.value, Qt.locale("Zh_CN"))
         font: exSpinBox.textFont
         color: exSpinBox.textColor
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         anchors.top: parent.top
+        anchors.topMargin: 1
         anchors.left: parent.left
+        anchors.leftMargin: 1
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 1
         background: Rectangle {
             topLeftRadius: exSpinBox.radius
             bottomLeftRadius: exSpinBox.radius
@@ -152,7 +169,13 @@ Item {
         onEditingFinished: {
             exSpinBox.value = exSpinBox.valueFromText(text, Qt.locale());
         }
+        onTextEdited: {
+            if (exSpinBox.live === true) {
+                exSpinBox.value = exSpinBox.valueFromText(text, Qt.locale());
+            }
+        }
     }
+    //up矩形
     Rectangle {
         id: upRect
         topRightRadius: exSpinBox.radius
@@ -161,8 +184,10 @@ Item {
         border.color: exSpinBox.upRectBorderColor
         implicitHeight: exSpinBox.upHeight
         implicitWidth: exSpinBox.upWidth
-        anchors.left: input.right
+        anchors.right: parent.right
+        anchors.rightMargin: 1
         anchors.top: parent.top
+        anchors.topMargin: 1
 
         //操作前是否已达最大值
         property bool isMaxValue: exSpinBox.value === exSpinBox.maxValue
@@ -186,14 +211,17 @@ Item {
             anchors.centerIn: parent
         }
     }
+    //down矩形
     Rectangle {
         id: downRect
         bottomRightRadius: exSpinBox.radius
         color: exSpinBox.downColor
         border.width: exSpinBox.downRectBorderWidth
         border.color: exSpinBox.downRectBorderColor
-        anchors.left: input.right
-        anchors.top: upRect.bottom
+        anchors.right: parent.right
+        anchors.rightMargin: 1
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 1
         //操作前是否已达最小值
         property bool isMinValue: exSpinBox.value === exSpinBox.minValue
         implicitHeight: exSpinBox.upHeight
