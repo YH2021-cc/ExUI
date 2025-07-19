@@ -42,6 +42,9 @@ ExBaseButton {
         TextUnderIcon//图标在文本上方,此时图标大小应大一些更合适
     }
 
+    implicitWidth: 100
+    implicitHeight: 30
+
     GridLayout {
         id: buttonLayout
         anchors.centerIn: parent
