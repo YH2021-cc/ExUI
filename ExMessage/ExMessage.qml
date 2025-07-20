@@ -1,67 +1,43 @@
-/**
-    注意:消息的x和y固定为让消息在父窗口居中显示(x)的坐标
-
- */
-
 import QtQuick
 import QtQuick.Controls as T
+import Qt5Compat.GraphicalEffects
 import "../ExButton"
 
 T.Popup {
     id: exMessage
 
-    //左侧图标来源
-    property url leftSource: ""
-    //左侧图标大小
-    property size leftIconSize: Qt.size(20, 20)
-    //左侧图标距离顶部边界的距离
-    property real leftIconToTopBorderMargin: 18
     //左侧图标距离左侧边界的距离
-    property real leftIconToLeftBorderMargin: 16
+    property real iconToLeftBorderMargin: 25
 
-    //关闭按钮图标源
-    property url closeButtonSource: ""
-    //关闭按钮的大小:默认为图标大小
-    property size closeButtonSize: closeButtonIconSize
-    //关闭按钮图标大小
-    property size closeButtonIconSize: Qt.size(12, 12)
+    //图标是否显示
+    property bool showIcon: true
+
+    //关闭按钮是否显示
+    property bool showClose: true
+
     //关闭按钮的背景颜色
     property color closeButtonColor: "transparent"
-    //关闭按钮距离顶部边界的距离
-    property real closeButtonToTopBorderMargin: 16
-    //关闭按钮距离左侧边界的距离
-    property real closeButtonToLeftBorderMargin: 411
 
-    //是否启用自动关闭
-    property bool autoClose: true
+    //关闭按钮距离左侧边界的距离
+    property real closeButtonToLeftBorderMargin: 380
+
     //关闭时间(毫秒)
-    property int closeTimeout: 3000
+    property int closeTimeout: 2000
+
+    //文本是否居中显示
+    property bool center: false
+
+    //图标到内容文本的距离
+    property real iconToTextMargin: 10
 
     //内容文本
-    property string contentText: "空"
+    property string text: "空"
     //内容文本颜色
-    property color contentTextColor: "black"
-    //内容文本距离顶部边界的距离
-    property real contentTextToTopBorderMargin: 44
-    //内容文本距离左侧边界的距离
-    property real contentTextToLeftBorderMargin: 44
+    property color textColor: "black"
     //内容文本字体采用父类的字体
-
-    //标题文本
-    property string titleText: "标题"
-    //标题文本颜色
-    property color titleTextColor: "black"
-    //标题文本字体
-    property font titleTextFont
-    //启用标题
-    property bool hasTitle: false
-    //标题文本距离顶部边界的距离
-    property real titleTextToTopBorderMargin: 16
-    //标题文本距离左侧边界的距离
-    property real titleTextToLeftBorderMargin: 44
-
-    //背景颜色
-    property color backgroundColor
+    font: Qt.font({
+        pixelSize: 14
+    })
     //背景矩形圆角
     property real radius: 8
     //背景矩形边框颜色
@@ -69,107 +45,146 @@ T.Popup {
     //背景矩形边框宽度
     property int borderWider: 0
 
-    implicitWidth: 455
+    //消息提示类型
+    property int type: ExMessage.MessageType.Success
+    enum MessageType {
+        Success,
+        Warning,
+        Info,
+        Error
+    }
+
+    //用于确定通知对象在通知管理器里队列的索引
+    property int index: 0
+    // 目标垂直位置
+    property real newPosition: 20
+
+    onClosed: {
+        if (closeTimer.running)
+            closeTimer.stop();
+    }
+
+    //根据类型决定图标来源
+    function getSource(type): url {
+        if (type === ExMessage.MessageType.Success)
+            return "file:///E:/ExUI/ExMessage/success.png";
+        else if (type === ExMessage.MessageType.Warning)
+            return "file:///E:/ExUI/ExMessage/warning.png";
+        else if (type === ExMessage.MessageType.Info)
+            return "file:///E:/ExUI/ExMessage/info.png";
+        else if (type === ExMessage.MessageType.Error)
+            return "file:///E:/ExUI/ExMessage/error.png";
+        else
+            return "icon source error";
+    }
+
+    //根据类型决定背景颜色
+    function getColor(type) {
+        if (type === ExMessage.MessageType.Success)
+            return "#E5FAE1";
+        else if (type === ExMessage.MessageType.Warning)
+            return "#FFFEE6";
+        else if (type === ExMessage.MessageType.Info)
+            return "#E5F9FF";
+        else if (type === ExMessage.MessageType.Error)
+            return "#FFF2F0";
+        else
+            return "getColor error";
+    }
+
+    implicitWidth: 400
     implicitHeight: 40
+    opacity: 1
     x: (parent.width - width) / 2
-    y: 0
+    y: newPosition
+    z: 1000
+    closePolicy: T.Popup.NoAutoClose
 
     enter: Transition {
-        ParallelAnimation {
-            NumberAnimation {
-                property: "y"
-                from: 0
-                to: Math.round((exMessage.parent.height - exMessage.height) / 4)
-                duration: 200
-            }
-            NumberAnimation {
-                property: "opacity"
-                from: 0.0
-                to: 1.0
-                duration: 200
-            }
+        NumberAnimation {
+            property: "opacity"
+            from: 0.0
+            to: 1.0
+            duration: 200
         }
     }
     exit: Transition {
-        ParallelAnimation {
-            NumberAnimation {
-                property: "y"
-                from: Math.round((exMessage.parent.height - exMessage.height) / 4)
-                to: 0
-                duration: 200
-            }
-            NumberAnimation {
-                property: "opacity"
-                from: 1.0
-                to: 0.0
-                duration: 200
-            }
+        NumberAnimation {
+            property: "opacity"
+            from: 1.0
+            to: 0.0
+            duration: 200
+        }
+    }
+
+    // 位置变化动画 - 当通知位置改变时的平滑过渡
+    Behavior on y {
+        NumberAnimation {
+            duration: 300  // 动画持续时间300毫秒
+            easing.type: Easing.OutCubic  // 缓动类型
         }
     }
 
     background: Rectangle {
         id: bg
-        color: exMessage.backgroundColor
+        color: exMessage.getColor(exMessage.type)
         radius: exMessage.radius
         border.width: exMessage.borderWider
         border.color: exMessage.borderColor
+        // 阴影效果 - 为通知添加立体感
+        layer.enabled: true
+        layer.effect: DropShadow {
+            transparentBorder: true
+            horizontalOffset: 0
+            verticalOffset: 2
+            radius: 10
+            samples: 16
+            color: "#30000000"  // 半透明黑色阴影
+        }
     }
 
     contentItem: Item {
         id: newContent
         anchors.fill: parent
-        Image {
-            id: icon
-            asynchronous: true
-            source: exMessage.leftSource
-            sourceSize: exMessage.leftIconSize
-            fillMode: Image.PreserveAspectFit
-            anchors.left: parent.left
-            anchors.leftMargin: exMessage.leftIconToLeftBorderMargin
-            anchors.top: parent.top
-            anchors.topMargin: exMessage.leftIconToTopBorderMargin
-        }
 
-        T.Label {
-            id: title
-            visible: exMessage.hasTitle
-            color: exMessage.titleTextColor
-            text: qsTr(exMessage.titleText)
-            font: exMessage.titleTextFont
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            anchors.left: parent.left
-            anchors.leftMargin: exMessage.titleTextToLeftBorderMargin
-            anchors.top: parent.top
-            anchors.topMargin: exMessage.titleTextToTopBorderMargin
-        }
+        Row {
+            spacing: exMessage.iconToTextMargin
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: exMessage.center ? undefined : parent.left
+            anchors.leftMargin: exMessage.center ? 0 : exMessage.iconToLeftBorderMargin
+            anchors.horizontalCenter: exMessage.center ? parent.horizontalCenter : undefined
+            Image {
+                id: icon
+                asynchronous: true
+                visible: exMessage.showIcon
+                source: exMessage.getSource(exMessage.type)
+                sourceSize: Qt.size(16, 16)
+                fillMode: Image.PreserveAspectFit
+            }
 
-        T.Label {
-            id: content_
-            color: exMessage.contentTextColor
-            text: qsTr(exMessage.contentText)
-            font: exMessage.font
-            elide: Text.ElideRight
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            anchors.left: parent.left
-            anchors.leftMargin: exMessage.contentTextToLeftBorderMargin
-            anchors.top: parent.top
-            anchors.topMargin: exMessage.contentTextToTopBorderMargin
+            T.Label {
+                id: content_
+                color: exMessage.textColor
+                text: qsTr(exMessage.text)
+                font: exMessage.font
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
         ExButton {
             id: closeButton
-            visible: source !== ""
-            width: exMessage.closeButtonSize.width
-            height: exMessage.closeButtonIconSize.height
+            visible: exMessage.showClose && (!exMessage.center)
+            width: 20
+            height: 20
+            radius: height / 2
             display: ExButton.DisplayMode.IconOnly
-            source: exMessage.closeButtonSource
-            sourceSize: exMessage.closeButtonIconSize
+            source: hovered ? "file:///E:/ExUI/ExMessage/closeBefore.png" : "file:///E:/ExUI/ExMessage/closeAfter.png"
+            sourceSize: Qt.size(16, 16)
             anchors.left: parent.left
             anchors.leftMargin: exMessage.closeButtonToLeftBorderMargin
-            anchors.top: parent.top
-            anchors.topMargin: exMessage.closeButtonToTopBorderMargin
-            color: exMessage.closeButtonColor
+            anchors.verticalCenter: parent.verticalCenter
+            color: hovered ? "#EE3333" : exMessage.closeButtonColor
             onClicked: {
                 exMessage.close();
             }
@@ -179,7 +194,7 @@ T.Popup {
     Timer {
         id: closeTimer
         interval: exMessage.closeTimeout
-        running: exMessage.autoClose
+        running: true
         repeat: true
         onTriggered: {
             exMessage.close();
