@@ -18,9 +18,6 @@ T.Popup {
     //关闭按钮的背景颜色
     property color closeButtonColor: "transparent"
 
-    //关闭按钮距离左侧边界的距离
-    property real closeButtonToLeftBorderMargin: 380
-
     //关闭时间(毫秒)
     property int closeTimeout: 2000
 
@@ -149,6 +146,8 @@ T.Popup {
 
         Row {
             spacing: exMessage.iconToTextMargin
+            width: parent.width - closeButton.width - 30
+            clip: true
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: exMessage.center ? undefined : parent.left
             anchors.leftMargin: exMessage.center ? 0 : exMessage.iconToLeftBorderMargin
@@ -182,7 +181,7 @@ T.Popup {
             source: hovered ? "file:///E:/ExUI/ExMessage/closeBefore.png" : "file:///E:/ExUI/ExMessage/closeAfter.png"
             sourceSize: Qt.size(16, 16)
             anchors.left: parent.left
-            anchors.leftMargin: exMessage.closeButtonToLeftBorderMargin
+            anchors.leftMargin: exMessage.width - 20
             anchors.verticalCenter: parent.verticalCenter
             color: hovered ? "#EE3333" : exMessage.closeButtonColor
             onClicked: {

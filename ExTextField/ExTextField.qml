@@ -33,10 +33,16 @@ T.TextField {
     property real radius: 8
     //边框宽度
     property int borderWidth: 2
+    //边框颜色
+    property color borderColor: borderNormalColor
     //边框默认颜色
-    property color borderColor: "#DCDFE6"
+    property color borderNormalColor: "#DCDFE6"
     //边框的有焦点颜色
     property color borderFocusColor: "#3071f2"
+    //输入正确时的边框颜色
+    property color inputRightColor: "#58D258"
+    //输入错误时的边框颜色
+    property color inputErrorColor: "#FF0023"
     //背景色
     property color backgroundColor: "#ffffff"
 
@@ -44,7 +50,7 @@ T.TextField {
         id: bg
         radius: exTextField.radius
         border.width: exTextField.borderWidth
-        border.color: exTextField.activeFocus ? exTextField.borderFocusColor : exTextField.borderColor
+        border.color: exTextField.borderColor
         color: exTextField.backgroundColor
         Image {
             id: leftIcon
