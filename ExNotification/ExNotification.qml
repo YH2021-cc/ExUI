@@ -66,7 +66,7 @@ T.Popup {
 
     //用于确定通知对象在通知管理器里队列的索引
     property int index: 0
-    // 目标垂直位置
+    // 目标垂直位置(用于设置每一个通知的y)
     property real newPosition: 20
 
     //通知的类型
